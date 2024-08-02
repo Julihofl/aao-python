@@ -1,0 +1,29 @@
+# Environment files
+__pycache__/
+.env
+.flaskenv
+.venv*
+
+# IDE and editor files
+.idea/
+.vscode/
+.spyder-py3/
+.mypy_cache/
+
+# Temporary test, build, or package files
+*.pyc
+*.egg-info/
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+
+# Requirements files (managed with tools like pipenv or poetry)
+requirements.txt
+requirements-dev.txt
+
+# Specific IDE or lineter output
+pylint.txt
+flake8.txt
