@@ -19,7 +19,7 @@ def solve_maximum_matching(graph: nx.Graph) -> Tuple[gp.Model, gp.Var]:
     # Initialisieren des Optimierungsmodells
     model = gp.Model()
     # Hinzufügen von Variablen für jede Kante im Graphen, kontinuierlich zwischen 0 und 1
-    variables: gp.Var = model.addVars(graph.edges(), vtype=GRB.CONTINUOUS, name='x')
+    variables: gp.Var = model.addVars(graph.edges(), vtype=GRB.BINARY, name='x')
 
     # Festlegen der Zielfunktion zur Maximierung der Summe der gewichteten Kanten im Matching
     model.setObjective(
@@ -29,8 +29,8 @@ def solve_maximum_matching(graph: nx.Graph) -> Tuple[gp.Model, gp.Var]:
 
     # Hinzufügen von Beschränkungen, um sicherzustellen, dass jeder Knoten in genau einer
     # Kante des Matchings enthalten ist
-    model.addConstrs(variables.sum(u, '*') == 1 for u in graph.nodes())
-    model.addConstrs(variables.sum('*', v) == 1 for v in graph.nodes())
+    model.addConstrs(variables.sum(u, '*') == 1 for u in bipartite.sets(graph)[0])
+    model.addConstrs(variables.sum('*', v) == 1 for v in bipartite.sets(graph)[1])
 
     # Optimieren des Modells
     model.optimize()
@@ -40,7 +40,8 @@ def visualize_solution(graph: nx.Graph, selected_edges: List[Tuple[int, int]]):
     # Festlegen der Farben der Kanten basierend darauf, ob sie im optimalen Matching ausgewählt wurden
     edge_colors: List[str] = ['red' if edge in selected_edges else 'gray' for edge in graph.edges()]
     # Erstellen einer Positionierung der Knoten für die Zeichnung
-    pos: Dict[Union[int, str], Tuple[float, float]] = nx.spring_layout(graph) 
+    # pos: Dict[Union[int, str], Tuple[float, float]] = nx.spring_layout(graph)
+    pos = nx.drawing.layout.bipartite_layout(graph, bipartite.sets(graph)[0])
     # Zeichnen des Graphen mit spezifizierten Farben und Positionen
     nx.draw(graph, pos, with_labels=True, node_color='skyblue', edge_color=edge_colors)
 

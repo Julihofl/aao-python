@@ -16,8 +16,8 @@ class Algorithm:
         self.M: Matroid = M
 
     def run(self):
-        # Initialisierung der Kantenmenge E und der unabhängigen Menge I
-        E: Set = set(self.M.graph.edges)
+        # Initialisierung der Grundmenge E und der unabhängigen Menge I
+        E: Set = set(self.M.groundset)
         I: Set = set()
 
         # Solange E nicht leer ist
@@ -41,8 +41,10 @@ def main() -> None:
 
     algorithm = Algorithm(matroid)
     basis = algorithm.run()
-
     print(basis)
+
+    mst: nx.Graph = nx.minimum_spanning_tree(graph)
+    print(set(mst.edges))
 
 if __name__ == "__main__":
     main()

@@ -62,11 +62,11 @@ class Algorithm:
             for e2 in self.M1.edges() - I:
                 # Wenn das Entfernen von e1 und Hinzufügen von e2 in M1 nicht unabhängig ist,
                 # aber das Hinzufügen von e2 allein zu I in M1 unabhängig ist, füge eine Kante (e1, e2) hinzu.
-                if not self.M1.independent(I - {e1} | {e2}) and not self.M1.independent(I | {e2}):
+                if not self.M1.independent(I - {e1} | {e2}) and self.M1.independent(I | {e2}):
                     self.G.add_edge(e1, e2)
             for e2 in self.M2.edges() - I:
                 # Analog für M2, aber mit umgekehrter Kantenrichtung (e2, e1).
-                if not self.M2.independent(I - {e1} | {e2}) and not self.M2.independent(I | {e2}):
+                if not self.M2.independent(I - {e1} | {e2}) and self.M2.independent(I | {e2}):
                     self.G.add_edge(e2, e1)
     
 def generate_random_graph(n_nodes: int, p_edge: float) -> nx.Graph:

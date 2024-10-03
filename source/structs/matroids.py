@@ -5,6 +5,9 @@ from typing import Set, Tuple, List
 from structs.union_find import UnionFind
 
 class Matroid(ABC):
+    def __init__(self, groundset: Set) -> None:
+        self.groundset: Set = groundset
+
     @abstractmethod
     def minarg(self, U):
         pass
@@ -20,11 +23,11 @@ class Matroid(ABC):
 class GraphMatroid(Matroid):
     def __init__(self, graph: nx.Graph) -> None:
         self.graph = graph.copy()
-        self.edges = {e: data['weight'] for e, data in graph.edges.items()}
+        super().__init__({e: data['weight'] for e, data in graph.edges.items()})
         self.union_find = UnionFind(list(graph.nodes()))
 
     def minarg(self, U: Set) -> Set:
-        return min(U, key=lambda x: self.edges[x])
+        return min(U, key=lambda x: self.groundset[x])
 
     def independent(self, U: Set) -> bool:
         temp_union_find = self.union_find.copy()
@@ -49,7 +52,7 @@ class UnweightedGraphMatroid(Matroid):
         self.union_find = UnionFind(list(graph.nodes()))
 
     def minarg(self, U: Set) -> Tuple:
-        return min(U, key=lambda edge: nx.shortest_path_length(self.graph, *edge)) 
+        return min(U, key=lambda edge: nx.shortest_path_length(self.graph, *edge))
 
     def independent(self, U: Set) -> bool:
         temp_union_find = self.union_find.copy()

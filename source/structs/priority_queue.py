@@ -13,13 +13,8 @@ class PriorityQueue:
 
     # Entfernt und gibt das Element mit der höchsten Priorität (niedrigster Wert) zurück.
     def pop(self) -> int:
-        # Tauscht das erste Element (höchste Priorität) mit dem letzten Element.
-        self._swap(0, len(self.heap) - 1)
-        # Entfernt das letzte Element (ursprünglich das erste) aus dem Heap.
-        item: int = self.heap.pop()[1]
-        # Stellt die Heap-Eigenschaft von oben nach unten wieder her.
-        self._heapify_down(0)
-        return item
+        # Entfernt das erste Element aus dem Heap und gibt es zurück.
+        return self.heap.pop(0)[1]
     
     def empty(self) -> bool:
         return len(self.heap) == 0
@@ -34,25 +29,6 @@ class PriorityQueue:
             self._swap(i, parent)
             # Wiederholt den Prozess rekursiv für das Elternteil.
             self._heapify_up(parent)
-
-    # Stellt die Heap-Eigenschaft von einem gegebenen Index aus nach unten wieder her.
-    def _heapify_down(self, i: int) -> None:
-        # Berechnet die Indizes der Kinderelemente.
-        left: int = 2 * i + 1
-        right: int = 2 * i + 2
-        smallest: int = i
-
-        # Überprüft, ob das linke Kind eine höhere Priorität als das aktuelle Element hat.
-        if left < len(self.heap) and self.heap[left][0] < self.heap[smallest][0]:
-            smallest = left
-        # Überprüft, ob das rechte Kind eine höhere Priorität als das aktuelle Element hat.
-        if right < len(self.heap) and self.heap[right][0] < self.heap[smallest][0]:
-            smallest = right
-        # Wenn eines der Kinder eine höhere Priorität hat, tauscht es mit dem aktuellen Element.
-        if smallest != i:
-            self._swap(i, smallest)
-            # Wiederholt den Prozess rekursiv für das neue Kind.
-            self._heapify_down(smallest)
 
     def _swap(self, i: int, j: int):
         self.heap[i], self.heap[j] = self.heap[j], self.heap[i]

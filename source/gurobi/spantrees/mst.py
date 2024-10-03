@@ -16,19 +16,20 @@ def solve_mst_with_gurobi(graph: nx.Graph) -> Tuple[gp.Model, gp.tupledict]:
     # Initialisiert ein neues Optimierungsmodell.
     model = gp.Model()
 
-    # Erstellt eine binäre Variable für jede Kante im Graphen.
+    # Erstellt eine binäre Variable x[u,v] für jede Kante (u,v) im Graphen.
+    # Damit wird dann angegeben, ob eine Kante zur Lösung gehört oder nicht.
     edge_vars: gp.tupledict = model.addVars(graph.edges(), vtype=GRB.BINARY, name='x')
 
     # Definiert die Zielfunktion: Minimiere die Summe der Kantengewichte des MST.
+    # Dabei ist edge_vars[u,v] entweder 0 oder 1, was bewirkt dass nur die Gewichte
+    # der Kanten der Lösung summiert werden.
     model.setObjective(
         gp.quicksum(edge_vars[u, v] * graph[u][v]['distance'] for u, v in graph.edges()), 
         GRB.MINIMIZE
     )
 
-    # Fügt Einschränkungen hinzu, um sicherzustellen, dass jede Kante höchstens einmal ausgewählt wird.
-    model.addConstrs(edge_vars[u, v] <= 1 for u, v in graph.edges())
     # Fügt eine Einschränkung hinzu, um sicherzustellen, dass die Anzahl der ausgewählten Kanten gleich
-    # der Anzahl der Knoten minus 1 ist.
+    # der Anzahl der Knoten minus 1 ist. Definition eines Spannbaumes.
     model.addConstr(gp.quicksum(edge_vars) == graph.number_of_nodes() - 1)
 
     # Callback-Funktion zur Eliminierung von Subtouren.
@@ -40,6 +41,8 @@ def solve_mst_with_gurobi(graph: nx.Graph) -> Tuple[gp.Model, gp.tupledict]:
             selected: gp.tupledict = gp.tuplelist((i, j) for i, j in model._vars.keys() if vals[i, j] > 0.5)
             # Findet die Komponenten (Subtouren) im Graphen der ausgewählten Kanten.
             components: List[Set] = nx.connected_components(nx.Graph(selected))
+            # Falls die Lösung mehr als eine Komponente besitzt, gibt es mehrere Subtouren.
+            # Das heißt dass es mehrere nicht zusammenhängende Bäume gibt. Diese wollen wir eliminieren.
             if len(list(components)) > 1:
                 # Für jede Komponente (Subtour), füge eine Lazy Constraint hinzu, um die Subtour zu eliminieren.
                 for S in components:
